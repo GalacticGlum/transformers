@@ -147,6 +147,7 @@ class Trainer:
     optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = None
     global_step: Optional[int] = None
     epoch: Optional[float] = None
+    on_save_model: Optional[Callable] = None
 
     def __init__(
         self,
@@ -159,6 +160,7 @@ class Trainer:
         prediction_loss_only=False,
         tb_writer: Optional["SummaryWriter"] = None,
         optimizers: Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler.LambdaLR] = None,
+        on_save_model=None
     ):
         """
         Trainer is a simple but feature-complete training and eval loop for PyTorch,
@@ -176,6 +178,7 @@ class Trainer:
         self.compute_metrics = compute_metrics
         self.prediction_loss_only = prediction_loss_only
         self.optimizers = optimizers
+        self.on_save_model = on_save_model
         if tb_writer is not None:
             self.tb_writer = tb_writer
         elif is_tensorboard_available() and self.is_world_master():
@@ -638,6 +641,9 @@ class Trainer:
         xm.rendezvous("saving_checkpoint")
         self.model.save_pretrained(output_dir)
 
+        if self.on_save_model is not None:
+            self.on_save_model(self, output_dir)
+
     def _save(self, output_dir: Optional[str] = None):
         output_dir = output_dir if output_dir is not None else self.args.output_dir
         os.makedirs(output_dir, exist_ok=True)
@@ -650,6 +656,9 @@ class Trainer:
 
         # Good practice: save your training arguments together with the trained model
         torch.save(self.args, os.path.join(output_dir, "training_args.bin"))
+
+        if self.on_save_model is not None:
+            self.on_save_model(self, output_dir)
 
     def _sorted_checkpoints(self, checkpoint_prefix=PREFIX_CHECKPOINT_DIR, use_mtime=False) -> List[str]:
         ordering_and_checkpoint_path = []
