@@ -23,6 +23,7 @@ import warnings
 import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss
+from torch.utils.checkpoint import checkpoint as gradient_checkpoint
 
 from .activations import ACT2FN
 from .configuration_gpt2 import GPT2Config
@@ -493,14 +494,25 @@ class GPT2Model(GPT2PreTrainedModel):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states.view(*output_shape),)
 
-            outputs = block(
-                hidden_states,
-                layer_past=layer_past,
-                attention_mask=attention_mask,
-                head_mask=head_mask[i],
-                use_cache=use_cache,
-                output_attentions=output_attentions,
-            )
+            if self.config.gradient_checkpointing:
+                outputs = gradient_checkpoint(
+                    block,
+                    hidden_states,
+                    layer_past,
+                    attention_mask,
+                    head_mask[i],
+                    use_cache,
+                    output_attentions
+                )
+            else:
+                outputs = block(
+                    hidden_states,
+                    layer_past=layer_past,
+                    attention_mask=attention_mask,
+                    head_mask=head_mask[i],
+                    use_cache=use_cache,
+                    output_attentions=output_attentions,
+                )
 
             hidden_states, present = outputs[:2]
             if use_cache is True:

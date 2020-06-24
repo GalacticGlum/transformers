@@ -71,6 +71,8 @@ class GPT2Config(PretrainedConfig):
                 The epsilon to use in the layer normalization layers
             initializer_range (:obj:`float`, optional, defaults to 16):
                 The standard deviation of the truncated_normal_initializer for initializing all weight matrices.
+            gradient_checkpointing (:obj:`bool`, optional, defaults to False):
+                If True, use gradient checkpointing to save memory at the expense of slower backward pass.
             summary_type (:obj:`string`, optional, defaults to "cls_index"):
                 Argument used when doing sequence summary. Used in for the multiple choice head in
                 :class:`~transformers.GPT2DoubleHeadsModel`.
@@ -135,6 +137,7 @@ class GPT2Config(PretrainedConfig):
         summary_first_dropout=0.1,
         bos_token_id=50256,
         eos_token_id=50256,
+        gradient_checkpointing=False,
         **kwargs
     ):
         super().__init__(bos_token_id=bos_token_id, eos_token_id=eos_token_id, **kwargs)
@@ -159,6 +162,8 @@ class GPT2Config(PretrainedConfig):
 
         self.bos_token_id = bos_token_id
         self.eos_token_id = eos_token_id
+
+        self.gradient_checkpointing = gradient_checkpointing
 
     @property
     def max_position_embeddings(self):
