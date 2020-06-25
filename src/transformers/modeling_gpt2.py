@@ -250,8 +250,8 @@ class Block(nn.Module):
         x = x + m
 
         outputs = [x] + output_attn[1:]
+        print(tuple(outputs))
         return tuple(outputs) # x, present, (attentions)
-
 
 class GPT2PreTrainedModel(PreTrainedModel):
     """ An abstract class to handle weights initialization and
