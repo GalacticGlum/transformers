@@ -250,7 +250,7 @@ class Block(nn.Module):
         x = x + m
 
         outputs = [x] + output_attn[1:]
-        return outputs  # x, present, (attentions)
+        return tuple(outputs) # x, present, (attentions)
 
 
 class GPT2PreTrainedModel(PreTrainedModel):
