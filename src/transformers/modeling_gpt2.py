@@ -498,11 +498,11 @@ class GPT2Model(GPT2PreTrainedModel):
                 outputs = gradient_checkpoint(
                     block,
                     hidden_states,
-                    layer_past,
-                    attention_mask,
-                    head_mask[i],
-                    use_cache,
-                    output_attentions
+                    layer_past=layer_past,
+                    attention_mask=attention_mask,
+                    head_mask=head_mask[i],
+                    use_cache=use_cache,
+                    output_attentions=output_attentions
                 )
             else:
                 outputs = block(
