@@ -500,7 +500,7 @@ class GPT2Model(GPT2PreTrainedModel):
                         hidden_states,
                         layer_past=layer_past,
                         attention_mask=attention_mask,
-                        head_mask=head_mask[i],
+                        head_mask=head_mask,
                         use_cache=use_cache,
                         output_attentions=output_attentions,
                     )
