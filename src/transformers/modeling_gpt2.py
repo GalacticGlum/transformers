@@ -495,8 +495,18 @@ class GPT2Model(GPT2PreTrainedModel):
                 all_hidden_states = all_hidden_states + (hidden_states.view(*output_shape),)
 
             if self.config.gradient_checkpointing:
+                def _block_func(hidden_states, layer_past, attention_mask, head_mask):
+                    return block(
+                        hidden_states,
+                        layer_past=layer_past,
+                        attention_mask=attention_mask,
+                        head_mask=head_mask[i],
+                        use_cache=use_cache,
+                        output_attentions=output_attentions,
+                    )
+                
                 outputs = gradient_checkpoint(
-                    block,
+                    _block_func,
                     hidden_states,
                     layer_past,
                     attention_mask,
