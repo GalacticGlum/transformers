@@ -267,7 +267,7 @@ class PretrainedConfig(object):
         return config_dict, kwargs
 
     @classmethod
-    def from_dict(cls, config_dict: Dict, **kwargs) -> "PretrainedConfig":
+    def from_dict(cls, config_dict: Dict, log=False, **kwargs) -> "PretrainedConfig":
         """
         Constructs a `Config` from a Python dictionary of parameters.
 
@@ -276,6 +276,8 @@ class PretrainedConfig(object):
                 Dictionary that will be used to instantiate the configuration object. Such a dictionary can be retrieved
                 from a pre-trained checkpoint by leveraging the :func:`~transformers.PretrainedConfig.get_config_dict`
                 method.
+            log:
+                Whether to log the model config.
             kwargs (:obj:`Dict[str, any]`):
                 Additional parameters from which to initialize the configuration object.
 
@@ -298,7 +300,9 @@ class PretrainedConfig(object):
         for key in to_remove:
             kwargs.pop(key, None)
 
-        logger.info("Model config %s", str(config))
+        if log:
+            logger.info("Model config %s", str(config))
+            
         if return_unused_kwargs:
             return config, kwargs
         else:
